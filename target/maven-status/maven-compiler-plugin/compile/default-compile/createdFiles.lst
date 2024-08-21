@@ -1,0 +1,7 @@
+com/gastronoapp/services/MenuItemService.class
+com/gastronoapp/controllers/MenuCategoryController.class
+com/gastronoapp/services/CommandUserService.class
+com/gastronoapp/dto/MenuCategoryDto.class
+com/gastronoapp/controllers/CommandUserContoller.class
+com/gastronoapp/services/MenuCategoryService.class
+com/gastronoapp/controllers/MenuItemController.class
