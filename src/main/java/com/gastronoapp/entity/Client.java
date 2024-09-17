@@ -7,20 +7,20 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "menu_category")
-public class MenuCategory {
+@Table(name = "client")
+public class Client {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
 
-    public MenuCategory() {
-    }
-
-    public MenuCategory(int id, String name) {
+    public Client(int id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public Client() {
     }
 
     public int getId() {
@@ -38,5 +38,4 @@ public class MenuCategory {
     public void setName(String name) {
         this.name = name;
     }
-
 }

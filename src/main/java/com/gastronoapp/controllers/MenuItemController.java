@@ -9,21 +9,17 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/menu-items")
+@RequestMapping("/menuitems")
 public class MenuItemController {
 
     @Autowired
     private MenuItemService menuItemService;
 
-    @PostMapping("/create_item")
+    @PostMapping("/save")
     public ResponseEntity<MenuItem> createMenuItem(@RequestBody MenuItem menuItem) {
         MenuItem savedMenuItem = menuItemService.saveMenuItem(menuItem);
         return ResponseEntity.ok(savedMenuItem);
     }
-    @GetMapping("/test")
-public ResponseEntity<String> test() {
-    return ResponseEntity.ok("Test endpoint is accessible");
-}
 
     @GetMapping("/all")
     public ResponseEntity<List<MenuItem>> getAllMenuItems() {
@@ -48,6 +44,6 @@ public ResponseEntity<String> test() {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMenuItem(@PathVariable int id) {
         menuItemService.deleteMenuItem(id);
-        return ResponseEntity.noContent().build();  
+        return ResponseEntity.noContent().build();
     }
 }

@@ -15,7 +15,7 @@ public class MenuItem {
  @GeneratedValue(strategy = GenerationType.IDENTITY)
  private int id;
  private String name;
- private int price;
+ private Double price;
  private String description;
  private int quantity;
  
@@ -25,7 +25,7 @@ public class MenuItem {
     public MenuItem() {
     }
 
-    public MenuItem(int id, String name, int price, String description, int quantity, int menu_category_id) {
+    public MenuItem(int id, String name, Double price, String description, int quantity, int menu_category_id) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -54,7 +54,7 @@ public class MenuItem {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 

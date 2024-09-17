@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MenuItemService {
+
     @Autowired
     private MenuItemRepository menuItemRepository;
 
@@ -24,12 +25,17 @@ public class MenuItemService {
         return menuItemRepository.findById(id);
     }
 
-   public Optional<MenuItem> getMenuItemByName(String name) {
+    public Optional<MenuItem> getMenuItemByName(String name) {
         return menuItemRepository.findByName(name);
     }
-
 
     public void deleteMenuItem(int id) {
         menuItemRepository.deleteById(id);
     }
+
+    public List<MenuItem> getItemById(List <Integer> ids){
+        return menuItemRepository.findAllById(ids);
+
+    }
+
 }
