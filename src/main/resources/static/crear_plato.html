@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Nuevo Producto</title>
+    <link rel="stylesheet" href="./css/crear_plato.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="crearPlatoForm">
+        <h2>Crear Nuevo Producto</h2>
+        <form id="platoForm">
+            <label for="tipoMenu">Tipo de Producto:</label>
+            <select id="tipoMenu" name="tipoMenu" required>
+                <option value="bebidas">Bebidas</option>
+                <option value="entradas">Entradas</option>
+                <option value="platoPrincipal">Plato Principal</option>
+                <option value="postre">Postre</option>
+            </select>
+
+            <label for="nombrePlato">Nombre del Producto:</label>
+            <input type="text" id="nombrePlato" name="nombrePlato" required>
+
+            <h3>Ingredientes:</h3>
+            <div id="ingredientesContainer">
+                <div class="ingrediente">
+                    <input type="text" name="ingredienteNombre" placeholder="Nombre del Ingrediente" required>
+                    <input type="number" name="ingredienteCantidad" placeholder="Cantidad" required>
+                    <select name="ingredienteMedida" required>
+                        <option value="kg">kg</option>
+                        <option value="unidades">Unidades</option>
+                    </select>
+                </div>
+            </div>
+            <label for="precio">Precio del Producto:</label>
+            <input type="number" id="precio" name="precio" min="0.01" step="0.01" required>
+            <button type="button" onclick="agregarIngrediente()">Agregar Ingrediente</button>
+
+            <button type="button" onclick="guardarPlato()">Guardar Producto</button>
+        </form>
+    </div>
+    <div id="productosSection">
+        <div id="productosContainer">
+            <h2>Productos</h2>
+            <ul id="productosList"></ul>
+        </div>
+    </div>
+
+    <script>
+        // Cargar platos existentes desde localStorage al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarPlatosGuardados();
+        });
+
+        function guardarPlato() {
+            // Almacenar el nuevo plato en localStorage
+            var plato = {
+                tipoMenu: document.getElementById('tipoMenu').value,
+                nombre: document.getElementById('nombrePlato').value,
+                precio: parseFloat(document.getElementById('precio').value),
+                ingredientes: obtenerIngredientes()
+            };
+
+            var platosGuardados = JSON.parse(localStorage.getItem('platos')) || [];
+            platosGuardados.push(plato);
+            localStorage.setItem('platos', JSON.stringify(platosGuardados));
+
+            // Limpiar el formulario y la lista de ingredientes
+            document.getElementById('platoForm').reset();
+            document.getElementById('ingredientesContainer').innerHTML = '';
+
+            // Recargar platos desde localStorage
+            cargarPlatosGuardados();
+        }
+
+        function cargarPlatosGuardados() {
+            var platosGuardados = JSON.parse(localStorage.getItem('platos')) || [];
+            var productosList = document.getElementById('productosList');
+
+            // Limpiar la lista antes de agregar nuevos elementos
+            productosList.innerHTML = '';
+
+            platosGuardados.forEach(function(plato, index) {
+                var listItem = document.createElement('li');
+                listItem.textContent = `${plato.tipoMenu} - ${plato.nombre}`;
+                listItem.classList.add(plato.tipoMenu.toLowerCase()); // Añade la categoría como una clase
+
+                // Botón de Modificar
+                var btnModificar = document.createElement('button');
+                btnModificar.textContent = 'Modificar';
+                btnModificar.onclick = function() {
+                    editarPlato(plato, index);
+                };
+
+
+                function editarPlato(plato) {
+                    // Crear un cuadro de diálogo para la edición
+                    var dialog = document.createElement('div');
+                    dialog.id = 'dialog';
+                    dialog.innerHTML = `
+                        <h3>Editar Plato</h3>
+                        <label for="nuevoNombre">Nombre:</label>
+                        <input type="text" id="nuevoNombre" value="${plato.nombre}" required>
+
+                        <label for="nuevosIngredientes">Ingredientes:</label>
+                        <input type="text" id="nuevosIngredientes" value="${mostrarIngredientes(plato.ingredientes)}" required>
+
+                        <label for="nuevoPrecio">Precio:</label>
+                        <input type="number" id="nuevoPrecio" value="${plato.precio || ''}">
+
+                        <button onclick="guardarCambios(${index}, ${JSON.stringify(plato)})">Guardar Cambios</button>
+
+                        <button onclick="cerrarDialog()">Cancelar</button>
+                    `;
+
+                    // Agregar el cuadro de diálogo al cuerpo del documento
+                    document.body.appendChild(dialog);
+                }
+
+                function mostrarIngredientes(ingredientes) {
+                    return ingredientes.map(function(ingrediente) {
+                        return `${ingrediente.nombre} ${ingrediente.cantidad} ${ingrediente.medida}`;
+                    }).join(', ');
+                }
+
+                function guardarCambios(index, plato) {
+                    // Obtener los nuevos valores del formulario
+                    var plato = JSON.parse(platoJSON);
+                    var nuevoNombre = document.getElementById('nuevoNombre').value;
+                    var nuevosIngredientes = document.getElementById('nuevosIngredientes').value;
+                    var nuevoPrecio = parseFloat(document.getElementById('nuevoPrecio').value);
+
+                    // Actualizar los valores del plato
+                    plato.nombre = nuevoNombre;
+                    plato.ingredientes = parsearIngredientes(nuevosIngredientes);
+                    plato.precio = isNaN(nuevoPrecio) ? undefined : nuevoPrecio;
+
+                    // Actualizar en localStorage
+                    localStorage.setItem('platos', JSON.stringify(platosGuardados));
+
+                    // Cerrar el cuadro de diálogo y recargar platos
+                    cargarPlatosGuardados();
+                    cerrarDialog();
+                }
+
+                function cerrarDialog() {
+                    // Eliminar el cuadro de diálogo del DOM
+                    var dialog = document.getElementById('dialog');
+                    if (dialog) {
+                        dialog.parentNode.removeChild(dialog);
+                    }
+                }
+
+                function parsearIngredientes(ingredientesString) {
+                    var ingredientesArray = ingredientesString.split(',').map(function(ingrediente) {
+                        var partes = ingrediente.trim().split(' ');
+                        return {
+                            nombre: partes.slice(0, -2).join(' '),
+                            cantidad: partes[partes.length - 2],
+                            medida: partes[partes.length - 1]
+                        };
+                    });
+
+                    return ingredientesArray;
+                }
+                window.guardarCambios = guardarCambios;
+                window.cerrarDialog = cerrarDialog;
+
+                // Botón de Eliminar
+                var btnEliminar = document.createElement('button');
+                btnEliminar.textContent = 'Eliminar';
+                btnEliminar.onclick = function() {
+                    var confirmarEliminacion = confirm('¿Está seguro de que desea eliminar este plato?');
+
+                    if (confirmarEliminacion) {
+                        // Lógica para eliminar el plato
+                        platosGuardados.splice(index, 1);
+                        localStorage.setItem('platos', JSON.stringify(platosGuardados));
+                        cargarPlatosGuardados();
+                    }
+                };
+
+                listItem.appendChild(btnModificar);
+                listItem.appendChild(btnEliminar);
+
+                productosList.appendChild(listItem);
+            });
+        }
+
+        function obtenerIngredientes() {
+            var ingredientes = [];
+            var ingredientesInputs = document.querySelectorAll('.ingrediente');
+
+            ingredientesInputs.forEach(function(input) {
+                var nombre = input.querySelector('[name="ingredienteNombre"]').value;
+                var cantidad = input.querySelector('[name="ingredienteCantidad"]').value;
+                var medida = input.querySelector('[name="ingredienteMedida"]').value;
+
+                ingredientes.push({
+                    nombre: nombre,
+                    cantidad: cantidad,
+                    medida: medida
+                });
+            });
+
+            return ingredientes;
+        }
+
+        function agregarIngrediente() {
+            var ingredientesContainer = document.getElementById('ingredientesContainer');
+
+            var divIngrediente = document.createElement('div');
+            divIngrediente.classList.add('ingrediente');
+
+            divIngrediente.innerHTML = `
+                    <input type="text" name="ingredienteNombre" placeholder="Nombre del Ingrediente" required>
+                    <input type="number" name="ingredienteCantidad" placeholder="Cantidad" required>
+                    <select name="ingredienteMedida" required>
+                        <option value="kg">kg</option>
+                        <option value="unidades">Unidades</option>
+                    </select>
+                `;
+
+            ingredientesContainer.appendChild(divIngrediente);
+        }
+    </script>
+</body>
+
+</html>

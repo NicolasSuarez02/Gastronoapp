@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="./css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header class="bg-black">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <img src="images/logo.png" alt="Logo GastronoApp">
+                </div>
+                <div id="usernameDisplay" class="username-display"></div>
+            </div>
+        </div>
+    </header>
+    <div class="title">
+        <h1><b>Toma de Pedidos</b></h1>
+    </div>
+
+    <!-- Formulario de Toma de Pedidos -->
+    <div class="col-12">
+        <div class="container">
+            <form id="orderForm">
+                <h2>Datos Generales</h2>
+                <div class="mb-5">
+                    <label for="customerEmail">Cliente:</label>
+                    <input type="text" id="customerClient" name="customerClient" required>
+                </div>
+                <h2>Selección de Productos</h2>
+                <div class="mb-5">
+                    <input type="text" id="menuSearch" placeholder="Buscar producto..." oninput="searchMenuItems()" list="menuDatalist" required>
+                    <datalist id="menuDatalist"></datalist>
+                    </select>
+                    <label for="quantity">Cantidad:</label>
+                    <input type="number" id="quantity" name="quantity" min="1" value="1" required>
+                </div>
+                <div class="mb-5">
+                    <label for="foodDetails">Comentario:</label>
+                    <textarea id="foodDetails" name="foodDetails" rows="4" cols="50"></textarea>
+                </div>
+                <button type="button" onclick="addToOrder()">Agregar al Pedido</button>
+                <h2>Resumen del Pedido</h2>
+                <ul id="orderSummary"></ul>
+                <button type="submit">Enviar Pedido</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Historial de Pedidos -->
+    <div class="col-12">
+        <div class="container">
+            <h2>Historial de Pedidos</h2>
+            <ul id="historialPedidos"></ul>
+        </div>
+    </div>
+
+    <script>
+        var menuDataFromStorage = JSON.parse(localStorage.getItem('platos')) || [];
+        // Recupera el nombre de usuario almacenado en localStorage
+        var username = localStorage.getItem('username');
+
+        // Muestra el nombre de usuario si está presente
+        if (username) {
+            var usernameDisplay = document.getElementById('usernameDisplay');
+            usernameDisplay.innerHTML = 'Usuario: ' + username;
+        }
+
+        function searchMenuItems() {
+            const searchInput = document.getElementById('menuSearch').value.toLowerCase();
+            const menuDatalist = document.getElementById('menuDatalist');
+
+            // Filtra los productos que coincidan con la búsqueda
+            const filteredMenuItems = menuDataFromStorage.filter(item => item.nombre.toLowerCase().includes(searchInput));
+
+            // Limpia la lista de resultados
+            menuDatalist.innerHTML = '';
+
+            // Agrega los resultados a la lista
+            filteredMenuItems.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.nombre;
+                menuDatalist.appendChild(option);
+            });
+        }
+
+        // Función para generar opciones de menú en el elemento select
+        function populateMenuOptions() {
+            const menuSelect = document.getElementById('menuItems');
+
+            // Si hay datos en localStorage, úsalos; de lo contrario, usa datos predeterminados
+            const menuDataToUse = menuDataFromStorage.length > 0 ? menuDataFromStorage : menuData;
+
+            menuSelect.innerHTML = ''; // Limpiar opciones existentes
+
+            menuDataToUse.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = `${item.name} - $${item.price.toFixed(2)}`;
+                menuSelect.appendChild(option);
+            });
+        }
+
+        // Función para agregar un producto al pedido
+        function addToOrder() {
+            const menuSearch = document.getElementById('menuSearch');
+            const quantityInput = document.getElementById('quantity');
+            const foodDetailsInput = document.getElementById('foodDetails');
+            const orderSummary = document.getElementById('orderSummary');
+
+            // Obtén el producto seleccionado
+            const selectedMenuItem = menuDataFromStorage.find(item => item.nombre === menuSearch.value);
+
+            if (selectedMenuItem) {
+                // Crea un nuevo elemento de lista para el resumen del pedido
+                const listItem = document.createElement('li');
+                listItem.textContent = `${selectedMenuItem.tipoMenu} - ${selectedMenuItem.nombre} x${quantityInput.value} - $${(selectedMenuItem.precio * quantityInput.value).toFixed(2)}`;
+
+                // Agrega detalles de comida al resumen si está presente
+                if (foodDetailsInput.value.trim() !== '') {
+                    listItem.textContent += ` - ${foodDetailsInput.value}`;
+                }
+
+                orderSummary.appendChild(listItem);
+
+            } else {
+                alert('Por favor, selecciona un producto válido.');
+            }
+        }
+
+
+        // Evento de envío del formulario
+        document.getElementById('orderForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const orderSummary = document.getElementById('orderSummary').innerHTML;
+
+            // Verifica si hay pedidos en el resumen y si el campo de cliente está lleno
+            if (orderSummary.trim() !== '' && document.getElementById('customerClient').value.trim() !== '') {
+                // Obtener datos del formulario
+                const customerName = document.getElementById('customerClient').value;
+                const foodDetails = document.getElementById('foodDetails').value;
+
+                // Agrega el pedido al historial con detalles del cliente
+                const historialPedidos = document.getElementById('historialPedidos');
+
+                const separator = document.createElement('hr');
+
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<strong>Cliente:</strong> ${customerName}<br><strong>Detalles:</strong> ${foodDetails}<br>${orderSummary}`;
+
+                historialPedidos.appendChild(listItem);
+                historialPedidos.appendChild(separator);
+
+                // Limpia el resumen del pedido
+                document.getElementById('orderSummary').innerHTML = '';
+
+                // Limpiar solo el campo del cliente y los campos de entrada
+                document.getElementById('customerClient').value = '';
+                document.getElementById('foodDetails').value = '';
+
+                // Muestra un alert después de realizar el pedido
+                alert('Pedido realizado.');
+            } else {
+                // Muestra un mensaje de error si no hay pedidos o el campo de cliente está vacío
+                alert('Completa los campos obligatorios y agrega al menos un producto al pedido.');
+            }
+        });
+
+        // Llama a la función para generar opciones de menú al cargar la página
+        populateMenuOptions();
+    </script>
+</body>
+
+</html>
