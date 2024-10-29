@@ -45,6 +45,7 @@ public class CommandDto {
     }
 
     public List <Integer> getMenuItemIds() {
+        System.out.println("Entro al getMenuItemIds"+menuItemIds);
         return menuItemIds;
     }
 

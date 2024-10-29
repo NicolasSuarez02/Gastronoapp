@@ -3,8 +3,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: #ffffff;
-background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%23000000' fill-opacity='0.6'%3E%3Cpath fill-rule='evenodd' d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2l-2 2V0zm0 4l4-4h2l-6 6V4zm0 4l8-8h2L40 10V8zm0 4L52 0h2L40 14v-2zm0 4L56 0h2L40 18v-2zm0 4L60 0h2L40 22v-2zm0 4L64 0h2L40 26v-2zm0 4L68 0h2L40 30v-2zm0 4L72 0h2L40 34v-2zm0 4L76 0h2L40 38v-2zm0 4L80 0v2L42 40h-2zm4 0L80 4v2L46 40h-2zm4 0L80 8v2L50 40h-2zm4 0l28-28v2L54 40h-2zm4 0l24-24v2L58 40h-2zm4 0l20-20v2L62 40h-2zm4 0l16-16v2L66 40h-2zm4 0l12-12v2L70 40h-2zm4 0l8-8v2l-6 6h-2zm4 0l4-4v2l-2 2h-2z'/%3E%3C/g%3E%3C/svg%3E") !important;
-    background-color: rgba(255, 255 255, 0.8) !important;
+    /* background-image: url("data:image/svg+xml...") !important; */
 }
 
 .username-display {
@@ -40,19 +39,78 @@ header .col-12 {
     margin-left: 100px;
 }
 
-form {
+.item-title{
+    text-align: center;
+    padding: 20px;
+    font-weight: bolder;
+    font-size: calc(1.375rem + 1.5vw);
+}
+
+/* General form styles */
+form, .crear-plato form {
     max-width: 600px;
     margin: 20px auto;
-    padding: 20px;
-    background-color: #fff;
+    padding: 25px;
+    background-color: #ffffff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border: 2px solid orangered;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+/* Titles in forms */
+.title, .crear-plato .title {
+    font-size: 24px;
+    color: black;
+    font-weight: bold;
+    /* text-align: center; */
+    margin-bottom: 20px;
+}
+
+/* Labels */
+label, .crear-plato label {
+    display: block;
+    font-size: 16px;
+    color: #555555;
+    margin-bottom: 5px;
+    padding-left: 5px;
+    font-weight: 500;
+}
+
+/* Inputs, selects, textareas */
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #cccccc;
     border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+/* Submit button */
+input[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background-color: orangered;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover {
+    background-color: #cc3700 !important;
 }
 
 hr {
-    margin: 10px 0;
-    border: 1px solid #ddd;
+    margin: 20px 0;
+    border: 1px solid #eeeeee;
 }
 
 #historialPedidos {
@@ -68,11 +126,7 @@ hr {
     margin-bottom: 10px;
 }
 
-#historialPedidos hr {
-    margin: 10px 0;
-    border: 1px solid #ddd;
-}
-
+/* Footer */
 footer .container {
     max-width: 1140px;
 }
@@ -86,4 +140,33 @@ footer .title-footer {
     line-height: normal;
     margin-bottom: 40px;
     margin-top: 45px;
+}
+
+.btn-primary{
+    margin-top: 20px;
+}
+
+/* Card hover effect */
+.card {
+    transition: all 0.5s ease;
+}
+
+.card:hover {
+    transform: scale(1.1);
+}
+
+/* Alerts */
+.alert, .crear-plato .alert {
+    position: fixed !important;
+    bottom: 50px;
+    right: 50px;
+    margin: 0;
+    padding: 15px;
+    width: 350px;
+    text-align: center;
+    color: #333;
+    background-color: #ffdddd;
+    border-left: 5px solid orangered;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }

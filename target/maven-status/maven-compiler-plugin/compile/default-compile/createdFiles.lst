@@ -1,8 +1,11 @@
+com\gastronoapp\repositories\CommandUserRepository.class
+com\gastronoapp\repositories\MenuItemRepository.class
 com\gastronoapp\repositories\UserRepository.class
 com\gastronoapp\services\MenuCategoryService.class
 com\gastronoapp\services\UserService.class
 com\gastronoapp\repositories\ClientRepository.class
 com\gastronoapp\entity\Command.class
+com\gastronoapp\entity\CommandUser.class
 com\gastronoapp\dto\CommandDto.class
 com\gastronoapp\dto\MenuCategoryDto.class
 com\gastronoapp\repositories\CommandRepository.class
@@ -16,6 +19,9 @@ com\gastronoapp\controllers\CommandController.class
 com\gastronoapp\entity\User.class
 com\gastronoapp\controllers\MenuCategoryController.class
 com\gastronoapp\controllers\CommandUserContoller.class
+com\gastronoapp\repositories\MenuCategoryRepository.class
 com\gastronoapp\controllers\UserController.class
+com\gastronoapp\entity\MenuCategory.class
+com\gastronoapp\entity\MenuItem.class
 com\gastronoapp\services\ClientService.class
 com\gastronoapp\services\MenuItemService.class

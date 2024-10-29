@@ -1,5 +1,6 @@
 package com.gastronoapp.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,9 +19,11 @@ public class Command {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
+    @Column(name = "observations")
     private String observations;
+    @Column(name = "number")
     private int tableNumber;
+    @Column(name = "date")
     private Date date;
     @ManyToMany
     @JoinTable(

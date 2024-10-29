@@ -10,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/menuitems")
+@CrossOrigin(origins = "*") // Permite todas las solicitudes CORS
 public class MenuItemController {
 
     @Autowired

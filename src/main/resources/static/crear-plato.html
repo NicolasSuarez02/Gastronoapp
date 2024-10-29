@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Item al Menú</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .alert {
+            display: none; /* Oculta el alert por defecto */
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2 class="item-title">Agregar Item al Menú</h2>
+    <form id="menuItemForm">
+        <label for="name">Nombre:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="price">Precio:</label>
+        <input type="number" id="price" name="price" required>
+
+        <label for="description">Descripción:</label>
+        <textarea id="description" name="description"></textarea>
+
+        <label for="menu_category_id">Categoría:</label>
+        <select id="menu_category_id" name="menu_category_id" required>
+            <option value="1">Bebida</option>
+            <option value="2">Plato Principal</option>
+            <option value="3">Postre</option>
+        </select>
+
+        <button type="submit" class="btn btn-primary">Guardar Item</button>
+    </form>
+
+    <!-- Contenedor para los mensajes -->
+    <div id="messageContainer" class="alert"></div>
+
+    <script>
+        document.getElementById("menuItemForm").addEventListener("submit", function (event) {
+            event.preventDefault(); // Evita el envío del formulario tradicional
+
+            // Obtén los valores del formulario
+            const name = document.getElementById("name").value;
+            const price = parseFloat(document.getElementById("price").value);
+            const description = document.getElementById("description").value;
+            const menuCategoryId = parseInt(document.getElementById("menu_category_id").value);
+
+            // Crea el objeto de datos
+            const menuItem = {
+                name: name,
+                price: price,
+                description: description,
+                menu_category_id: menuCategoryId
+            };
+
+            // Envía los datos al backend
+            fetch("/menuitems/save", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(menuItem)
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error("Error al guardar el item de menú");
+            })
+            .then(data => {
+                showMessage("Item de menú guardado con éxito", "success");
+                console.log("Item guardado:", data);
+                
+                // Resetea el formulario después de guardar
+                document.getElementById("menuItemForm").reset();
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                showMessage("Hubo un problema al guardar el item de menú", "error");
+            });
+        });
+
+        // Función para mostrar mensajes
+        function showMessage(message, type) {
+            const messageContainer = document.getElementById("messageContainer");
+            messageContainer.textContent = message;
+
+            // Cambia el estilo del contenedor según el tipo
+            if (type === "success") {
+                messageContainer.className = "alert alert-success"; // Clase de Bootstrap para éxito
+            } else {
+                messageContainer.className = "alert alert-danger"; // Clase de Bootstrap para error
+            }
+
+            messageContainer.style.display = "block"; // Muestra el contenedor
+            setTimeout(() => {
+                messageContainer.style.display = "none"; // Oculta después de 3 segundos
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
