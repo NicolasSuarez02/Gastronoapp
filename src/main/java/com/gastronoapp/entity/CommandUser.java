@@ -8,7 +8,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "menu_category")
+@Table(name = "command_user")
 public class CommandUser {
 
     @Id

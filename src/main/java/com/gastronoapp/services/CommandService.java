@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CommandService {
@@ -46,5 +47,8 @@ public class CommandService {
 
     public List<Command> getAllCommands() {
         return commandRepository.findAll();
+    }
+    public Optional<Command> getCommandById(int id) {
+        return commandRepository.findById(id);
     }
 }

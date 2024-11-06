@@ -18,206 +18,132 @@
         <div class="container">
             <div class="row">
                 <div class="col-12">
-                    <img src="images/logo.png" alt="Logo GastronoApp" style="margin-bottom: -40px;">
+                    <a href="/"><img src="images/logo.png" alt="Logo GastronoApp" style="margin-bottom: -40px;"></a>
                 </div>
                 <div id="usernameDisplay" class="username-display"></div>
             </div>
         </div>
     </header>
-
-    <div class="col-12">
-        <div class="title mt-5">
-            <h1><b>Tomar Pedido</b></h1>
+    <div class="container mt-5 p-3">
+        <h1><b>Selecciona una Mesa</b></h1>
+        <div class="row mt-4 text-center" id="tableMap">
+            <!-- cuadros de mesas -->
         </div>
-        <div class="container">
-            <div id="alertContainer" class="container mt-3"></div> <!-- Contenedor de alertas -->
-            <form id="orderForm">
-                <legend>Datos Generales</legend>
-                <div class="mb-3">
-                    <label for="customerClient" class="form-label">Cliente</label>
-                    <input type="text" id="customerClient" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label for="tableNumber" class="form-label">Número de Mesa</label>
-                    <input type="number" id="tableNumber" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <legend>Selección de productos</legend>
-                    <label for="menuItems" class="form-label">Productos</label>
-                    <div id="productCards" style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px;"></div>
-                </div>
-                <div class="form-floating mb-3">
-                    <textarea class="form-control" placeholder="Comentarios" id="foodDetails"></textarea>
-                    <label for="foodDetails">Comentario</label>
-                </div>
-                <legend>Resumen del pedido</legend>
-                <div class="mb-3 mt-3 border border-3 p-3" id="resumenPedido" style="height: auto;">
-                    <label class="message-no-products">Aún no hay datos cargados</label>
-                </div>
-                <button type="submit" class="btn btn-primary">Enviar pedido</button>
-            </form>
+        <div class="text-center mt-2">
+            <a href="/pedido-cocina.html" class="btn btn-primary">Ver Cocina</a>
+        </div>
+        <div class="text-center mt-2">
+            <button id="verPedidosBtn" class="btn btn-primary">Ver Comandas</button>
+        </div>
+        <div id="pedidosContainer" class="pedidos-container mt-4" style="display: none;">
+            <h2 class="mb-3">Comandero</h2>
+            <div id="pedidosList" class="row g-3">
+                <!-- pedidos -->
+            </div>
         </div>
     </div>
-    <div class="my-4">
-        <a href="/crear-plato.html" class="btn btn-primary">Agregar Nuevo Item al Menú</a>
-    </div>
-
     <script>
-        var username = localStorage.getItem('username');
+        const mesas = Array.from({ length: 10 }, (_, i) => i + 1); //10 mesas
 
-        if (username) {
-            var usernameDisplay = document.getElementById('usernameDisplay');
-            usernameDisplay.innerHTML = 'Usuario: ' + username;
-        }
+        function generarMapaMesas() {
+            const tableMap = document.getElementById('tableMap');
+            mesas.forEach(mesa => {
+                const mesaDiv = document.createElement('div');
+                mesaDiv.className = 'col-4 col-md-2 m-2 p-4 border border-dark text-center';
+                mesaDiv.style.cursor = 'pointer';
+                mesaDiv.textContent = `Mesa ${mesa}`;
 
-        // Función para mostrar alertas
-        function showAlert(message, type) {
-            const alertContainer = document.getElementById('alertContainer');
-            const alert = document.createElement('div');
-            alert.className = `alert alert-${type} alert-dismissible fade show`;
-            alert.role = 'alert';
-            alert.innerHTML = message + `
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            `;
-            alertContainer.appendChild(alert);
-            
-            setTimeout(() => {
-                alert.classList.remove('show');
-                alert.classList.add('fade');
-            }, 3000);
-        }
-
-        async function fetchMenuItems() {
-            try {
-                const response = await fetch('/menuitems/all', { mode: 'no-cors' });
-                if (!response.ok) {
-                    throw new Error('Error al obtener los productos');
-                }
-                const menuItems = await response.json();
-                generateProductCards(menuItems);
-            } catch (error) {
-                console.error('Error fetching menu items:', error);
-            }
-        }
-
-        let items;
-
-        function generateProductCards(menuItems) {
-            items = menuItems;
-            const productCardsContainer = document.getElementById('productCards');
-            productCardsContainer.innerHTML = '';
-            const orderSummary = document.getElementById('resumenPedido');
-
-            menuItems.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.style.maxWidth = '8rem';
-                card.style.cursor = 'pointer';
-
-                const img = document.createElement('img');
-                img.src = "images/logo.png"; 
-                img.className = 'card-img-top';
-
-                const cardBody = document.createElement('div');
-                cardBody.className = 'card-body';
-
-                const cardText = document.createElement('p');
-                cardText.className = 'card-text';
-                cardText.textContent = item.name;
-
-                card.addEventListener('click', () => {
-                    let noProduct = document.querySelector(".message-no-products");
-                    if (noProduct) {
-                        noProduct.classList.add("d-none");
-                    }
-                    let currentSummary = orderSummary.innerHTML;
-                    const menuItemIds = [];
-
-                    const regex = new RegExp(`(${item.name} \\(Cantidad: )(\\d+)(\\))`);
-
-                    if (currentSummary.match(regex)) {
-                        currentSummary = currentSummary.replace(regex, (_, prefix, count, suffix) => {
-                            const newCount = parseInt(count) + 1;
-                            return `${prefix}${newCount}${suffix}`;
-                        });
-                    } else {
-                        const newItem = `<p class="m-0">${item.name} (Cantidad: 1)</p>`;
-                        currentSummary = currentSummary === 'Aún no hay datos cargados' ? newItem : `${currentSummary}` + '<br>' + `${newItem}`;
-                        showAlert(`${item.name} agregado al resumen.`, 'success'); // Alerta al agregar producto
-                    }
-
-                    orderSummary.innerHTML = currentSummary;
-                    menuItemIds.push(item.id);
-                });
-
-                cardBody.appendChild(cardText);
-                card.appendChild(img);
-                card.appendChild(cardBody);
-                productCardsContainer.appendChild(card);
-            });
-
-            if (orderSummary.innerHTML === 'Aún no hay datos cargados') {
-                orderSummary.innerHTML = '';
-            }
-        }
-
-        document.getElementById('orderForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-
-            const orderSummary = document.getElementById('resumenPedido');
-            const menuItemIds = [];
-            const foodDetails = document.getElementById('foodDetails').value;
-            const tableNumber = document.getElementById('tableNumber').value;
-
-            if (orderSummary.innerHTML.trim() !== '' && document.getElementById('customerClient').value.trim() !== '') {
-                orderSummary.querySelectorAll('p').forEach(item => {    
-                    const match = item.innerHTML.match(/(Cantidad: )(\d+)/);
-                    if (match) {
-                        const count = parseInt(match[2]);
-                        for (let i = 0; i < count; i++) {
-                            const productName = item.innerHTML.match(/(.*) \(Cantidad:/)[1].trim();
-                            const product = items.find(m => m.name === productName);
-                            if (product) {
-                                menuItemIds.push(product.id);
-                            }
-                        }
-                    }
-                });
-
-                const orderData = {
-                    observations: foodDetails,
-                    number: parseInt(tableNumber),
-                    menuItemIds: menuItemIds
+                mesaDiv.onclick = () => {
+                    window.location.href = `/crear-pedido.html?mesa=${mesa}`;
                 };
 
-                try {
-                    const response = await fetch('/command/save', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(orderData)
-                    });
+                tableMap.appendChild(mesaDiv);
+            });
+        }
 
-                    if (!response.ok) {
-                        throw new Error('Error al enviar el pedido');
+        document.getElementById('verPedidosBtn').onclick = async () => {
+            const pedidosContainer = document.getElementById('pedidosContainer');
+            const pedidosList = document.getElementById('pedidosList');
+
+            pedidosContainer.style.display = pedidosContainer.style.display === 'none' ? 'block' : 'none';
+
+            if (pedidosContainer.style.display === 'block' && pedidosList.children.length === 0) {
+                try {
+                    const response = await fetch('/command-menu-item/all');
+                    const pedidos = await response.json();
+
+                    console.log('Datos recibidos del endpoint:', pedidos);
+
+                    const pedidoDetails = {};
+
+                    for (const pedido of pedidos) {
+                        const commandId = pedido.command.id;
+
+                        if (!pedidoDetails[commandId]) {
+                            const commandResponse = await fetch(`/command/find/${commandId}`);
+                            const commandData = await commandResponse.json();
+
+                            pedidoDetails[commandId] = {
+                                number: commandData.number,
+                                observations: commandData.observations,
+                                items: {},
+                                total: 0
+                            };
+                        }
+
+                        const menuItemId = pedido.menuItem.name;
+
+                        if (!pedidoDetails[commandId].items[menuItemId]) {
+                            const menuItemResponse = await fetch(`/menuitems/name/${menuItemId}`);
+                            const menuItemData = await menuItemResponse.json();
+
+                            pedidoDetails[commandId].items[menuItemId] = {
+                                name: menuItemData.name,
+                                price: menuItemData.price,
+                                quantity: 1
+                            };
+
+                            pedidoDetails[commandId].total += menuItemData.price;
+                        } else {
+                            pedidoDetails[commandId].items[menuItemId].quantity += 1;
+                            pedidoDetails[commandId].total += pedidoDetails[commandId].items[menuItemId].price;
+                        }
                     }
 
-                    showAlert('Pedido realizado con éxito.', 'success'); // Alerta de pedido realizado
-                    orderSummary.innerHTML = 'Aún no hay datos cargados';
-                    document.getElementById('customerClient').value = '';
-                    document.getElementById('foodDetails').value = '';
-                    document.getElementById('tableNumber').value = '';
-                } catch (error) {
-                    console.error('Error submitting order:', error);
-                    showAlert('Error al realizar el pedido.', 'danger'); // Alerta de error
-                }
-            } else {
-                showAlert('Completa los campos obligatorios y agrega al menos un producto al pedido.', 'warning');
-            }
-        });
+                    for (const commandId in pedidoDetails) {
+                        const detail = pedidoDetails[commandId];
+                        const pedidoDiv = document.createElement('div');
+                        pedidoDiv.className = 'col-12 col-md-4';
 
-        fetchMenuItems();
+                        const card = document.createElement('div');
+                        card.className = 'card p-3 mb-3 border rounded bg-light';
+
+                        const pedidosString = Object.values(detail.items).map(item => {
+                            const itemTotal = item.price * item.quantity;
+                            return `${item.quantity} ${item.name} --------- $${item.price.toFixed(2)}`;
+                        }).join("<br>");
+
+                        const totalComanda = Object.values(detail.items).reduce((total, item) => {
+                            return total + (item.price * item.quantity);
+                        }, 0);
+
+                        card.innerHTML = `
+                            <p><strong>Número de mesa:</strong> ${detail.number}</p>
+                            <p><strong>Pedido:</strong><br>${pedidosString}</p>
+                            <p><strong>Total:</strong> $${totalComanda.toFixed(2)}</p>
+                            <p><strong>Observaciones:</strong> ${detail.observations}</p>
+                        `;
+                        pedidoDiv.appendChild(card);
+                        pedidosList.appendChild(pedidoDiv);
+                    }
+
+                } catch (error) {
+                    console.error('Error al cargar pedidos:', error);
+                }
+            }
+        };
+
+        generarMapaMesas();
     </script>
 </body>
 

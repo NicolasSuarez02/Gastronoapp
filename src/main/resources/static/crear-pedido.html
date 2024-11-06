@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Pedido</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header class="bg-black">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <a href="/"><img src="images/logo.png" alt="Logo GastronoApp" style="margin-bottom: -40px;"></a>
+                </div>
+                <div id="usernameDisplay" class="username-display"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="col-12">
+        <div class="title mt-5">
+            <h1><b>Tomar Pedido</b></h1>
+        </div>
+        <div class="container">
+            <div id="alertContainer" class="container mt-3"></div>
+            <form id="orderForm">
+                <legend>Datos Generales</legend>
+                <div class="mb-3">
+                    <label for="customerClient" class="form-label">Cliente</label>
+                    <input type="text" id="customerClient" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="tableNumber" class="form-label">Número de Mesa</label>
+                    <input type="number" id="tableNumber" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <legend>Selección de productos</legend>
+                    <label for="menuItems" class="form-label">Productos</label>
+                    <div id="productCards" style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px;"></div>
+                </div>
+                <div class="form-floating mb-3">
+                    <textarea class="form-control" placeholder="Comentarios" id="foodDetails"></textarea>
+                    <label for="foodDetails">Comentario</label>
+                </div>
+                <legend>Resumen del pedido</legend>
+                <div class="mb-3 mt-3 border border-3 p-3" id="resumenPedido" style="height: auto;">
+                    <label class="message-no-products">Aún no hay datos cargados</label>
+                </div>
+                <button type="submit" class="btn btn-primary">Enviar pedido</button>
+            </form>
+        </div>
+    </div>
+    <div class="my-4">
+        <a href="/crear-plato.html" class="btn btn-primary">Agregar Nuevo Item al Menú</a>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const numeroMesa = urlParams.get('mesa');
+        if (numeroMesa) {
+            document.getElementById('tableNumber').value = numeroMesa;
+        }
+        
+        var username = localStorage.getItem('username');
+
+        if (username) {
+            var usernameDisplay = document.getElementById('usernameDisplay');
+            usernameDisplay.innerHTML = 'Usuario: ' + username;
+        }
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show`;
+            alert.role = 'alert';
+            alert.innerHTML = message + `
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.classList.remove('show');
+                alert.classList.add('fade');
+            }, 3000);
+        }
+
+        async function fetchMenuItems() {
+            try {
+                const response = await fetch('/menuitems/all', { mode: 'no-cors' });
+                if (!response.ok) {
+                    throw new Error('Error al obtener los productos');
+                }
+                const menuItems = await response.json();
+                generateProductCards(menuItems);
+            } catch (error) {
+                console.error('Error fetching menu items:', error);
+            }
+        }
+
+        let items;
+
+        function generateProductCards(menuItems) {
+            items = menuItems;
+            const productCardsContainer = document.getElementById('productCards');
+            productCardsContainer.innerHTML = '';
+            const orderSummary = document.getElementById('resumenPedido');
+
+            menuItems.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.maxWidth = '8rem';
+                card.style.cursor = 'pointer';
+
+                const img = document.createElement('img');
+                img.src = "images/logo.png"; 
+                img.className = 'card-img-top';
+
+                const cardBody = document.createElement('div');
+                cardBody.className = 'card-body';
+
+                const cardText = document.createElement('p');
+                cardText.className = 'card-text';
+                cardText.textContent = item.name;
+
+                card.addEventListener('click', () => {
+                    let noProduct = document.querySelector(".message-no-products");
+                    if (noProduct) {
+                        noProduct.classList.add("d-none");
+                    }
+                    let currentSummary = orderSummary.innerHTML;
+                    const menuItemIds = [];
+
+                    const regex = new RegExp(`(${item.name} \\(Cantidad: )(\\d+)(\\))`);
+
+                    if (currentSummary.match(regex)) {
+                        currentSummary = currentSummary.replace(regex, (_, prefix, count, suffix) => {
+                            const newCount = parseInt(count) + 1;
+                            return `${prefix}${newCount}${suffix}`;
+                        });
+                    } else {
+                        const newItem = `<p class="m-0">${item.name} (Cantidad: 1)</p>`;
+                        currentSummary = currentSummary === 'Aún no hay datos cargados' ? newItem : `${currentSummary}` + '<br>' + `${newItem}`;
+                        showAlert(`${item.name} agregado al resumen.`, 'success');
+                    }
+
+                    orderSummary.innerHTML = currentSummary;
+                    menuItemIds.push(item.id);
+                });
+
+                cardBody.appendChild(cardText);
+                card.appendChild(img);
+                card.appendChild(cardBody);
+                productCardsContainer.appendChild(card);
+            });
+
+            if (orderSummary.innerHTML === 'Aún no hay datos cargados') {
+                orderSummary.innerHTML = '';
+            }
+        }
+
+        document.getElementById('orderForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const orderSummary = document.getElementById('resumenPedido');
+            const menuItemIds = [];
+            const foodDetails = document.getElementById('foodDetails').value;
+            const tableNumber = document.getElementById('tableNumber').value;
+
+            if (orderSummary.innerHTML.trim() !== '' && document.getElementById('customerClient').value.trim() !== '') {
+                orderSummary.querySelectorAll('p').forEach(item => {    
+                    const match = item.innerHTML.match(/(Cantidad: )(\d+)/);
+                    if (match) {
+                        const count = parseInt(match[2]);
+                        for (let i = 0; i < count; i++) {
+                            const productName = item.innerHTML.match(/(.*) \(Cantidad:/)[1].trim();
+                            const product = items.find(m => m.name === productName);
+                            if (product) {
+                                menuItemIds.push(product.id);
+                            }
+                        }
+                    }
+                });
+
+                const orderData = {
+                    observations: foodDetails,
+                    number: parseInt(tableNumber),
+                    menuItemIds: menuItemIds
+                };
+
+                try {
+                    const response = await fetch('/command/save', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(orderData)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Error al enviar el pedido');
+                    }
+
+                    showAlert('Pedido realizado con éxito.', 'success');
+                    orderSummary.innerHTML = 'Aún no hay datos cargados';
+                    document.getElementById('customerClient').value = '';
+                    document.getElementById('foodDetails').value = '';
+                    document.getElementById('tableNumber').value = '';
+                } catch (error) {
+                    console.error('Error submitting order:', error);
+                    showAlert('Error al realizar el pedido.', 'danger');
+                }
+            } else {
+                showAlert('Completa los campos obligatorios y agrega al menos un producto al pedido.', 'warning');
+            }
+        });
+
+        fetchMenuItems();
+    </script>
+</body>
+
+</html>

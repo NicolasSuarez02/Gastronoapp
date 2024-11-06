@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comanda Cocina</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .section {
+            padding: 20px 0;
+            margin-bottom: 30px; 
+            border-bottom: 2px solid #ccc;
+        }
+
+        .comanda {
+            transition: transform 0.3s ease;
+            width: 100%;
+            max-width: 30%;
+            margin: 10px auto;
+        }
+
+        .comandas-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 10;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="bg-black">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <a href="/"><img src="images/logo.png" alt="Logo GastronoApp" style="margin-bottom: -40px;"></a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="container mt-5">
+        <h1><b>COCINA</b></h1>
+
+        <div id="recibido" class="section">
+            <h2>Recibido</h2>
+            <div id="comandasRecibido" class="row g-3">
+            </div>
+        </div>
+
+        <div id="enCurso" class="section">
+            <h2>En Curso</h2>
+            <div id="comandasEnCurso" class="row g-3">
+            </div>
+        </div>
+
+        <div id="terminado" class="section">
+            <h2>Pedidos Terminados</h2>
+            <div id="comandasTerminado" class="row g-3">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function obtenerComandasParaCocinero() {
+            const comandasRecibido = document.getElementById('comandasRecibido');
+            const comandasEnCurso = document.getElementById('comandasEnCurso');
+            const comandasTerminado = document.getElementById('comandasTerminado');
+
+            try {
+                const response = await fetch('/command-menu-item/all');
+                const pedidos = await response.json();
+
+                const pedidoDetails = {};
+
+                for (const pedido of pedidos) {
+                    const commandId = pedido.command.id;
+
+                    if (!pedidoDetails[commandId]) {
+                        const commandResponse = await fetch(`/command/find/${commandId}`);
+                        const commandData = await commandResponse.json();
+
+                        pedidoDetails[commandId] = {
+                            number: commandData.number,
+                            items: {},
+                        };
+                    }
+
+                    if (pedido.menuItem.menuCategory !== 3) {
+                        const menuItemId = pedido.menuItem.name;
+
+                        if (!pedidoDetails[commandId].items[menuItemId]) {
+                            const menuItemResponse = await fetch(`/menuitems/name/${menuItemId}`);
+                            const menuItemData = await menuItemResponse.json();
+
+                            pedidoDetails[commandId].items[menuItemId] = {
+                                name: menuItemData.name,
+                                quantity: 1
+                            };
+                        } else {
+                            pedidoDetails[commandId].items[menuItemId].quantity += 1;
+                        }
+                    }
+                }
+
+                for (const commandId in pedidoDetails) {
+                    const detail = pedidoDetails[commandId];
+                    const pedidoCol = document.createElement('div');
+                    pedidoCol.className = 'col-md-4';
+
+                    const pedidoDiv = document.createElement('div');
+                    pedidoDiv.className = 'comanda bg-light p-3 mb-3 border rounded';
+                    pedidoDiv.setAttribute('data-command-id', commandId);
+                    
+                    const pedidosString = Object.values(detail.items).map(item => {
+                        return `${item.quantity} ${item.name}`;
+                    }).join("<br>");
+
+                    pedidoDiv.innerHTML = `
+                        <p><strong>Número de mesa:</strong> ${detail.number}</p>
+                        <p><strong>Pedido:</strong><br>${pedidosString}</p>
+                        <button class="btn btn-primary mb-2" onclick="moverAEnCurso('${commandId}')">Mover a En Curso</button>
+                        <button class="btn btn-success" onclick="moverATerminado('${commandId}')">Mover a Terminados</button>
+                    `;
+
+                    comandasRecibido.appendChild(pedidoDiv);
+                }
+            } catch (error) {
+                console.error('Error al cargar las comandas:', error);
+            }
+        }
+
+        function moverAEnCurso(commandId) {
+            const pedidoElement = document.querySelector(`.comanda[data-command-id="${commandId}"]`);
+            if (pedidoElement) {
+                document.getElementById('comandasEnCurso').appendChild(pedidoElement);
+                pedidoElement.querySelector('button.btn-primary').disabled = true;
+
+                pedidoElement.style.transform = 'translateY(0)';
+            }
+        }
+
+        function moverATerminado(commandId) {
+            const pedidoElement = document.querySelector(`.comanda[data-command-id="${commandId}"]`);
+            if (pedidoElement) {
+                document.getElementById('comandasTerminado').appendChild(pedidoElement);
+                pedidoElement.querySelector('button.btn-success').disabled = true;
+
+                pedidoElement.style.transform = 'translateY(0)';
+            }
+        }
+        obtenerComandasParaCocinero();
+    </script>
+</body>
+
+</html>

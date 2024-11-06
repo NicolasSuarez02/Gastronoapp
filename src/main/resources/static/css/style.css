@@ -3,8 +3,19 @@ body {
     margin: 0;
     padding: 0;
     background-color: #ffffff;
-    /* background-image: url("data:image/svg+xml...") !important; */
 }
+
+#tableMap .col-4 {
+    transition: transform 0.3s;
+    background-color: orangered;
+    border-radius: 4px;
+}
+
+#tableMap .col-4:hover {
+    transform: scale(1.1);
+    background-color: #f8f9fa;
+}
+
 
 .username-display {
     position: absolute;
@@ -58,7 +69,7 @@ form, .crear-plato form {
 }
 
 /* Titles in forms */
-.title, .crear-plato .title {
+.title, .crear-plato .title{
     font-size: 24px;
     color: black;
     font-weight: bold;
