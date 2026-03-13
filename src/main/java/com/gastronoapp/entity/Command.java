@@ -25,10 +25,13 @@ public class Command {
     private int tableNumber;
     @Column(name = "date")
     private Date date;
+    @Column(name = "status")
+    private String status = "RECIBIDO";
+
     @ManyToMany
     @JoinTable(
-            name = "command_menu_item", 
-            joinColumns = @JoinColumn(name = "command_id"), 
+            name = "command_menu_item",
+            joinColumns = @JoinColumn(name = "command_id"),
             inverseJoinColumns = @JoinColumn(name = "menu_item_id"))
     private List<MenuItem> menuItems;
 
@@ -41,48 +44,24 @@ public class Command {
         this.tableNumber = tableNumber;
         this.date = date;
         this.menuItems = menuItems;
+        this.status = "RECIBIDO";
     }
 
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String getObservations() { return observations; }
+    public void setObservations(String observations) { this.observations = observations; }
 
-    public String getObservations() {
-        return observations;
-    }
+    public int getNumber() { return tableNumber; }
+    public void setNumber(int tableNumber) { this.tableNumber = tableNumber; }
 
-    public void setObservations(String observations) {
-        this.observations = observations;
-    }
+    public Date getDate() { return date; }
+    public void setDate(Date date) { this.date = date; }
 
-    public int getNumber() {
-        return tableNumber;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
-    public void setNumber(int tableNumber) {
-        this.tableNumber = tableNumber;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public List<MenuItem> getMenuItems() {
-        return menuItems;
-    }
-
-    public void setMenuItems(List<MenuItem> menuItems) {
-        this.menuItems = menuItems;
-    }
-
-    
-
+    public List<MenuItem> getMenuItems() { return menuItems; }
+    public void setMenuItems(List<MenuItem> menuItems) { this.menuItems = menuItems; }
 }

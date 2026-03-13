@@ -42,6 +42,11 @@ public class MenuItemController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<MenuItem> updateMenuItem(@PathVariable int id, @RequestBody MenuItem updates) {
+        return ResponseEntity.ok(menuItemService.updateMenuItem(id, updates));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMenuItem(@PathVariable int id) {
         menuItemService.deleteMenuItem(id);

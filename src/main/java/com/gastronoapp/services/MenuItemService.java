@@ -35,7 +35,17 @@ public class MenuItemService {
 
     public List<MenuItem> getItemById(List <Integer> ids){
         return menuItemRepository.findAllById(ids);
+    }
 
+    public MenuItem updateMenuItem(int id, MenuItem updates) {
+        MenuItem item = menuItemRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("MenuItem not found: " + id));
+        item.setName(updates.getName());
+        item.setPrice(updates.getPrice());
+        item.setDescription(updates.getDescription());
+        item.setQuantity(updates.getQuantity());
+        item.setMenu_category_id(updates.getMenu_category_id());
+        return menuItemRepository.save(item);
     }
 
 }

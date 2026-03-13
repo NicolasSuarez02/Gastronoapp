@@ -1,13 +1,12 @@
 package com.gastronoapp.repositories;
 
+import com.gastronoapp.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.gastronoapp.entity.User;
+import java.util.Optional;
 
-// El repository permite hacer queries a la bd
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
-
-    
+    Optional<User> findByNameAndPassword(String name, String password);
 }

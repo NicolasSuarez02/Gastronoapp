@@ -5,16 +5,11 @@ import com.gastronoapp.services.MenuCategoryService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/menucategory")
+@CrossOrigin(origins = "*")
 public class MenuCategoryController {
 
     @Autowired
@@ -31,6 +26,11 @@ public class MenuCategoryController {
     public ResponseEntity<List<MenuCategory>> getAllMenuCategories() {
         List<MenuCategory> menuCategories = menuCategoryService.getAllMenuCategories();
         return ResponseEntity.ok(menuCategories);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<MenuCategory> updateMenuCategory(@PathVariable int id, @RequestBody MenuCategory updates) {
+        return ResponseEntity.ok(menuCategoryService.updateMenuCategory(id, updates));
     }
 
     @DeleteMapping("/delete/{id}")
